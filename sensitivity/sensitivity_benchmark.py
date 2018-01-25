@@ -87,20 +87,25 @@ class SensitivityBenchmark:
         return dbcon.Dbcon(self.sPathToDB)
 
 # ---- private runner --------
-    def __hash_single_image(self, sPathToImage, lCollectionId, bAddSave=True):
+    def __hash_single_image(self, sPathToImage, lCollectionId, bAddSave=False):
         """ hash a single image and add it to db"""
         # connect do db
         dbData = self.get_dbcon()
 
+        # add image to db
         sImageName = sPathToImage.split("/")[-1]
         aImage = util.load_image(sPathToImage)
-        # # if add save mode is enabled, test whether file is existend
-        # if bAddSave:
-
-        # add image to db
-        lImageId = dbData.execute_sql_query_manipulation(
-            "INSERT INTO images (name, collection_id) VALUES (?,?);", (
-                sImageName, lCollectionId))
+        # if add save mode is enabled, test whether file is existend
+        tpValues = (sImageName, lCollectionId)
+        aExistendImageId = None
+        if bAddSave:
+            aExistendImageId = dbData.execute_sql_query_select(
+                "SELECT id FROM images  WHERE name=? AND collection_id=?;", tpValues)
+        if bAddSave and aExistendImageId:
+            lImageId = aExistendImageId[0][0]
+        else:
+            lImageId = dbData.execute_sql_query_manipulation(
+                "INSERT INTO images (name, collection_id) VALUES (?,?);", tpValues)
 
         # process hashing
         for fnHash, dicHashParameters in self.aHashes:
@@ -117,7 +122,18 @@ class SensitivityBenchmark:
             else:
                 lHashTypeId = aExistentHashTypes[0][0]
 
-            # hash handling
+            # test whether image and hash combination was tested already
+            # NOTE: will be tested in AddSave mode only, because it cost a lot of
+            # time ... dont use this mode if you can ensure tha you never add a
+            # collection twice
+            if bAddSave:
+                aExistendImageHash = dbData.execute_sql_query_select(
+                    "SELECT null from images_hashes as ih INNER JOIN hashes as h on h.id = ih.hash_id WHERE h.hash_type_id=? AND ih.image_id=?;", (lHashTypeId, lImageId))
+                # skip hash calculation and add to db if already existend
+                if aExistendImageHash:
+                    continue
+
+            # calculate and add hash if not existend
             aHash = fnHash(aImage, **dicHashParameters)
             tpValues = (lHashTypeId, aHash)
             lHashId = dbData.execute_sql_query_manipulation(
@@ -130,7 +146,7 @@ class SensitivityBenchmark:
 
 #------ add imageset to db and hash every image --------
 
-    def hash_imageset(self, sPathToImages):
+    def hash_imageset(self, sPathToImages, bAddSave=False):
         """ hash all images of given directory by all hashing algos set
             images with file extension [".png", ".bmp", ".jpg", ".jpeg", ".tiff"]
             are considered
@@ -157,18 +173,24 @@ class SensitivityBenchmark:
         # Save collection in db if not already existend
         aCollection = dbData.execute_sql_query_select(
             "SELECT id FROM collections WHERE name=?;", (sCollectionName,))
-        if not aCollection:
+        if aCollection and not bAddSave:
+            raise Exception(
+                "\n\nYou try to add an image collection you have already added. " +
+                "If you really want do do this because you added an other hashing algorithm, run this using the bAddSave=True flag. " +
+                "Do NOT set the flag to true by default because it will check every image added, whether it is already existend. " +
+                "This can cost a lot of time parsing very big image datasets.")
+        elif aCollection and bAddSave:
+            lCollectionId = aCollection[0][0]
+        else:
             lCollectionId = dbData.execute_sql_query_manipulation(
                 "INSERT INTO collections (name) VALUES (?);", (sCollectionName,))
-        else:
-            lCollectionId = aCollection[0][0]
 
-        # cerate thread for every image
+        # create thread for every image
         oPool = ThreadPool(processes=self.lNumberOfThreads)
         aTaskPoolThreads = []
         for sPathToImage in aImagePathes:
             pThread = oPool.apply_async(
-                self.__hash_single_image, (sPathToImage, lCollectionId))
+                self.__hash_single_image, (sPathToImage, lCollectionId, bAddSave))
             aTaskPoolThreads.append(pThread)
 
         # catch threads -- have no returns

@@ -49,5 +49,11 @@ if __name__ == '__main__':
     sensbench.set_nr_of_threads(lNumberOfThreads)
 
     # -------- run test -------
+    # NOTE: If you already hashed an imageset and you want to test an additional
+    # hashing algorithm without hashing the dataset again with the previous defined hashing
+    # algorithms, than set the bAddSave=True. In this mode the algorithm will check for every
+    # single image whether the image - hash combination is already existend. If you can ensure,
+    # that you run the test the first time and the database is empty, don't use the flag because
+    # the execution time will be way longer using it.
     for sPathToImageSet in aImagesets:
-        sensbench.hash_imageset(sPathToImageSet)
+        sensbench.hash_imageset(sPathToImageSet, bAddSave=False)
