@@ -35,6 +35,12 @@ def check_if_path_exists(sPath):
     return os.path.exists(sPathEscape)
 
 
+def check_if_file_exists(sPath):
+    """ returns Ture if a given path is a file and is existend """
+    sPathEscape = os.path.expanduser(sPath)
+    return os.path.isfile(sPathEscape)
+
+
 def list_all_images_in_directory(sDirectoryPath):
     """ returns as list of all images in a given subfolder """
     sDirectoryPathEscaped = escape_home_in_path(sDirectoryPath)

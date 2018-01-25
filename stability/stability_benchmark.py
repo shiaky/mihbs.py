@@ -222,6 +222,8 @@ class StabilityBenchmark:
             raise Exception("you forgot to set hashing functions")
         if not self.aAttacks:
             raise Exception("you forgot to set attacks")
+        if not self.fnDeviation:
+            raise Exception("you forgot to set a deviation function")
         if not self.lNumberOfThreads >= 1:
             raise Exception(
                 "the numbers of threads you defined is invalid: %i" % lNumberOfThreads)
