@@ -38,6 +38,8 @@ def check_if_path_exists(sPath):
 def list_all_images_in_directory(sDirectoryPath):
     """ returns as list of all images in a given subfolder """
     sDirectoryPathEscaped = escape_home_in_path(sDirectoryPath)
+    if not check_if_path_exists(sDirectoryPathEscaped):
+        raise Exception("path %s does not exist" % sDirectoryPathEscaped)
     if not sDirectoryPathEscaped.endswith("/"):
         sDirectoryPathEscaped += "/"
     aFiles = next(os.walk(sDirectoryPathEscaped))[2]

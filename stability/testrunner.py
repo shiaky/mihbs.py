@@ -74,6 +74,7 @@ if __name__ == '__main__':
     stabbench.set_attacks(aAttacks)
     stabbench.set_hashes(aHashes)
     stabbench.set_deviation_fn(fnDeviationFunction)
+    stabbench.set_nr_of_threads(lNumberOfThreads)
 
     # -------- run test -------
     stabbench.run_test_on_images(sPathToImages)

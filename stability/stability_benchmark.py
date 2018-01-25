@@ -6,8 +6,6 @@ sys.path.append('../common')
 import util
 import dbcon
 import math
-import os
-import numpy as np
 from multiprocessing.pool import ThreadPool
 
 
@@ -214,10 +212,10 @@ class StabilityBenchmark:
             are considered
         """
 
-        aImages = util.list_all_images_in_directory(sPathToImages)
+        aImagePathes = util.list_all_images_in_directory(sPathToImages)
 
         # error handling
-        if not aImages:
+        if not aImagePathes:
             raise Exception(
                 "given path %s does not contain any images" % sPathToDB)
         if not self.aHashes:
@@ -231,30 +229,11 @@ class StabilityBenchmark:
         # cerate thread for every image
         oPool = ThreadPool(processes=self.lNumberOfThreads)
         aTaskPoolThreads = []
-        for sPathToImage in aImages:
+        for sPathToImage in aImagePathes:
             pThread = oPool.apply_async(
                 self.__run_test_on_single_image, (sPathToImage,))
             aTaskPoolThreads.append(pThread)
 
         # catch threads -- have no returns
-        for i in range(len(aImages)):
+        for i in range(len(aImagePathes)):
             aTaskPoolThreads[i].get()
-
-        # # set ThreadPool
-        # oPool = ThreadPool(processes=self.lNumberOfThreads)
-
-        # aImagesSplit = np.array_split(aImages, self.lNumberOfThreads)
-
-        # aTaskPoolThreads = []
-        # # start threads with subset of images
-        # for i in range(len(aImagesSplit)):
-        #     print("starting thread %i" % i)
-        #     pThread = oPool.apply_async(
-        #         self.__run_test_on_split_imageset, (aImagesSplit[i],))
-        #     aTaskPoolThreads.append(pThread)
-
-        # # stop catch all threads
-        # for i in range(len(aImagesSplit)):
-        #     print("waiting for thread %i" % i)
-        #     aTaskPoolThreads[i].get()
-        # return aImagesSplit
