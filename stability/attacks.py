@@ -12,19 +12,6 @@ from skimage import img_as_ubyte
 import math
 
 
-#----------- debug------------------------------
-def save_image(aImage, sPathToImage):
-    """saves a given image to the given location"""
-    cv2.imwrite(sPathToImage, aImage)
-
-
-def load_image(sPathToImage):
-    """load an image from disk"""
-    return cv2.imread(sPathToImage)
-
-# ------------- end debug ----------------------
-
-
 def scale(aInputImage, lScalefactorX=1, lScaleFactorY=1):
     """scaling an image by a given scale factor"""
     if (lScalefactorX <= 1 and lScaleFactorY <= 1):
@@ -37,7 +24,8 @@ def scale(aInputImage, lScalefactorX=1, lScaleFactorY=1):
 def rotation_cropped(aInputImage, dRotationAngle=25):
     """ perform a cropped rotation that crops the rotated image to fill the whole canvas without borders"""
     def rotatedRectWithMaxArea(w, h, angle):
-        #thanks to coproc (https://stackoverflow.com/questions/16702966/rotate-image-and-crop-out-black-borders)
+        # thanks to coproc
+        # (https://stackoverflow.com/questions/16702966/rotate-image-and-crop-out-black-borders)
         """
         Given a rectangle of size wxh that has been rotated by 'angle' (in
         radians), computes the width and height of the largest possible
