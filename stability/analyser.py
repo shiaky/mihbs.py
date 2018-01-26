@@ -199,26 +199,24 @@ def calc_values_multiple_parameter_for_each_hash(sFileBaseName, oPandasData, sYC
 
 # ------------------------- attack handlers --------------------------
 def scale_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all scale
-    oScale = oPandasData[oPandasData["attack_fn"] == "scale"]
 
     # calculate x and y parameters
-    oScale["paramY"] = oScale["attack_params"].map(
+    oPandasData["paramY"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["lScaleFactorY"])
     # TODO: change the typo in the attacks and here and in stability test
-    oScale["paramX"] = oScale["attack_params"].map(
+    oPandasData["paramX"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["lScalefactorX"])
 
     # first progress with uniform scale
-    oScaleUniform = oScale[oScale["paramX"] == oScale["paramY"]]
+    oScaleUniform = oPandasData[oPandasData["paramX"] == oPandasData["paramY"]]
 
     aScaleTypes = [
         ("scale_uniform", "scale (uniform)", "paramX", "scale factor x and y",
-         oScale[oScale["paramX"] == oScale["paramY"]]),
+         oPandasData[oPandasData["paramX"] == oPandasData["paramY"]]),
         ("scale_nonuniform_x", "scale (non-uniform, x-axis)", "paramX", "scale factor  x",
-         oScale[oScale["paramY"] == 1]),
+         oPandasData[oPandasData["paramY"] == 1]),
         ("scale_nonuniform_y", "scale (non-uniform, x-axis)", "paramY", "scale factor  y",
-         oScale[oScale["paramX"] == 1])
+         oPandasData[oPandasData["paramX"] == 1])
     ]
     for sFileBaseName, sDiagramTitle, sXColumnName, sXLabel, oData in aScaleTypes:
         # plot uniform scale data
@@ -239,8 +237,8 @@ def scale_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash"
             sFileBaseName, oPandasData=oData, sXColumnName=sXColumnName, sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
     # continue here with non uniform values
-    oNonuniformScale = oScale[(oScale["paramX"] != oScale["paramY"]) & (
-        oScale["paramX"] != 1) & (oScale["paramY"] != 1)]
+    oNonuniformScale = oPandasData[(oPandasData["paramX"] != oPandasData["paramY"]) & (
+        oPandasData["paramX"] != 1) & (oPandasData["paramY"] != 1)]
 
     # create parameter
     oNonuniformScale["parameter"] = oNonuniformScale["attack_params"].map(
@@ -263,18 +261,15 @@ def scale_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash"
 
 def rotation_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
     """process rotation as single unsegmented attack """
-    # filter rotation
-    oRotation = oPandasData[oPandasData["attack_fn"] == "rotation"]
-
     # add rotation angle as feature
-    oRotation["parameter"] = oRotation.apply(
+    oPandasData["parameter"] = oPandasData.apply(
         lambda row: ast.literal_eval(row["attack_params"])["dRotationAngle"], axis=1)
 
     aRotationTypes = [
         ("rotation_scale", "rotation (scaled)",
-         oRotation[oRotation["attack_params"].str.contains("'bFit': True")]),
+         oPandasData[oPandasData["attack_params"].str.contains("'bFit': True")]),
         ("rotation_noscale", "rotation (unscaled)",
-         oRotation[oRotation["attack_params"].str.contains("'bFit': False")])
+         oPandasData[oPandasData["attack_params"].str.contains("'bFit': False")])
     ]
 
     for sFileBaseName, sDiagramTitle, oData in aRotationTypes:
@@ -299,16 +294,14 @@ def rotation_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_ha
 
 def rotation_cropped_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
     """process rotation as single unsegmented attack """
-    # filter rotation
-    oRotation = oPandasData[oPandasData["attack_fn"] == "rotation_cropped"]
 
     # add rotation angle as feature
-    oRotation["parameter"] = oRotation.apply(
+    oPandasData["parameter"] = oPandasData.apply(
         lambda row: ast.literal_eval(row["attack_params"])["dRotationAngle"], axis=1)
 
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="rotation_cropped",
                                                  sImageExtension=".png",
-                                                 oPandasData=oRotation,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -322,26 +315,23 @@ def rotation_cropped_handler(oPandasData, sBasePath="basic/", sYColumnName="devi
                                                      0, 361, 30),
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "rotation_cropped", oPandasData=oRotation, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "rotation_cropped", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def crop_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all crop
-    oCrop = oPandasData[oPandasData["attack_fn"] == "crop_percentage"]
-
     # add params
-    oCrop["paramTop"] = oCrop["attack_params"].map(
+    oPandasData["paramTop"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["tpSlice"][0])
-    oCrop["paramLeft"] = oCrop["attack_params"].map(
+    oPandasData["paramLeft"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["tpSlice"][1])
-    oCrop["paramButtom"] = oCrop["attack_params"].map(
+    oPandasData["paramButtom"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["tpSlice"][2])
-    oCrop["paramRight"] = oCrop["attack_params"].map(
+    oPandasData["paramRight"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["tpSlice"][3])
 
     # handle uniform crops
-    oCropUniform = oCrop[(oCrop["paramTop"] == oCrop["paramLeft"]) & (
-        oCrop["paramTop"] == oCrop["paramButtom"]) & (oCrop["paramTop"] == oCrop["paramRight"])]
+    oCropUniform = oPandasData[(oPandasData["paramTop"] == oPandasData["paramLeft"]) & (
+        oPandasData["paramTop"] == oPandasData["paramButtom"]) & (oPandasData["paramTop"] == oPandasData["paramRight"])]
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="crop_uniform",
@@ -361,8 +351,8 @@ def crop_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash",
         "crop_uniform", oPandasData=oCropUniform, sXColumnName="paramTop", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
     # handle nonuniform cropping
-    oCropNonUniform = oCrop[(oCrop["paramTop"] != oCrop["paramLeft"]) | (
-        oCrop["paramTop"] != oCrop["paramButtom"]) | (oCrop["paramTop"] != oCrop["paramRight"])]
+    oCropNonUniform = oPandasData[(oPandasData["paramTop"] != oPandasData["paramLeft"]) | (
+        oPandasData["paramTop"] != oPandasData["paramButtom"]) | (oPandasData["paramTop"] != oPandasData["paramRight"])]
 
     # create parameter
     oCropNonUniform["parameter"] = oCropNonUniform["attack_params"].map(
@@ -384,48 +374,48 @@ def crop_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash",
 
 
 def shift_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all shift
-    oShift = oPandasData[oPandasData["attack_fn"].str.contains("shift_")]
 
     # create parameter
-    oShift["parameter"] = oShift["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["lPixles"])
     aShiftTypes = [
         ("shift_vertical", "shift (vertical)", "shift vertical in pixel",
-         oShift[oShift["attack_fn"].str.contains("_vertical")]),
+         oPandasData[oPandasData["attack_fn"].str.contains("_vertical")]),
         ("shift_horizontal", "shift (horizontal)", "shift horizontal in pixel",
-         oShift[oShift["attack_fn"].str.contains("_horizontal")])
+         oPandasData[oPandasData["attack_fn"].str.contains("_horizontal")])
     ]
-    for sFileBaseName, sDiagramTitle, sXLabel, oData in aShiftTypes:
-        # plot uniform scale data
-        plot_single_parameter_sortable_for_each_hash(sImageBaseName=sFileBaseName,
-                                                     sImageExtension=".png",
-                                                     oPandasData=oData,
-                                                     sXColumnName="parameter",
-                                                     sYColumnName=sYColumnName,
-                                                     sCategoryColumnName="hashalgorithm",
-                                                     sBasePath=sBasePath,
-                                                     sUnitColumnName="image",
-                                                     sDiagramTitle=sDiagramTitle,
-                                                     sXLabel=sXLabel,
-                                                     sYLabel=sYLabel,
-                                                     lConfidenceInterval=95,
-                                                     bInterpolate=True)
-        calc_values_single_parameter_for_each_hash(
-            sFileBaseName, oPandasData=oData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+    # check what kind of shift was given
+    lIndex = 0
+    if oPandasData.attack_fn.unique()[0] == "shift_horizontal":
+        lIndex = 1
+    sFileBaseName, sDiagramTitle, sXLabel, oData = aShiftTypes[lIndex]
+    # plot uniform scale data
+    plot_single_parameter_sortable_for_each_hash(sImageBaseName=sFileBaseName,
+                                                 sImageExtension=".png",
+                                                 oPandasData=oData,
+                                                 sXColumnName="parameter",
+                                                 sYColumnName=sYColumnName,
+                                                 sCategoryColumnName="hashalgorithm",
+                                                 sBasePath=sBasePath,
+                                                 sUnitColumnName="image",
+                                                 sDiagramTitle=sDiagramTitle,
+                                                 sXLabel=sXLabel,
+                                                 sYLabel=sYLabel,
+                                                 lConfidenceInterval=95,
+                                                 bInterpolate=True)
+    calc_values_single_parameter_for_each_hash(
+        sFileBaseName, oPandasData=oData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def flip_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all flip
-    oFlip = oPandasData[oPandasData["attack_fn"] == "flip"]
 
     # create parameter
-    oFlip["parameter"] = oFlip["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: "horizontal" if a.find("{'bVertical': False}") >= 0 else "vertical")
 
     plot_single_parameter_categorical_for_each_hash(sImageBaseName="flip",
                                                     sImageExtension=".png",
-                                                    oPandasData=oFlip,
+                                                    oPandasData=oPandasData,
                                                     sXColumnName="parameter",
                                                     sYColumnName=sYColumnName,
                                                     sCategoryColumnName="hashalgorithm",
@@ -435,21 +425,19 @@ def flip_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash",
                                                     sYLabel=sYLabel,
                                                     lConfidenceInterval=95)
     calc_values_single_parameter_for_each_hash(
-        "flip", oPandasData=oFlip, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "flip", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def contrast_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all contrast
-    oContrast = oPandasData[oPandasData["attack_fn"] == "contrast"]
 
     # create parameter
-    oContrast["parameter"] = oContrast["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["lContrast"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="contrast",
                                                  sImageExtension=".png",
-                                                 oPandasData=oContrast,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -461,21 +449,19 @@ def contrast_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_ha
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "contrast", oPandasData=oContrast, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "contrast", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def gamma_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all gamma
-    oGamma = oPandasData[oPandasData["attack_fn"] == "gamma_adjustment"]
 
     # create parameter
-    oGamma["parameter"] = oGamma["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["dGamma"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="gamma",
                                                  sImageExtension=".png",
-                                                 oPandasData=oGamma,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -487,21 +473,19 @@ def gamma_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash"
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "gamma", oPandasData=oGamma, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "gamma", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def median_filter_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all median filter
-    oMedianFilter = oPandasData[oPandasData["attack_fn"] == "median_filter"]
 
     # create parameter
-    oMedianFilter["parameter"] = oMedianFilter["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["lKernelSize"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="median_filter",
                                                  sImageExtension=".png",
-                                                 oPandasData=oMedianFilter,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -513,21 +497,19 @@ def median_filter_handler(oPandasData, sBasePath="basic/", sYColumnName="deviati
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "median_filter", oPandasData=oMedianFilter, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "median_filter", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def gauss_filter_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all gauss
-    oGaussFilter = oPandasData[oPandasData["attack_fn"] == "gaussian_filter"]
 
     # create parameter
-    oGaussFilter["parameter"] = oGaussFilter["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["lSigma"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="gauss_filter",
                                                  sImageExtension=".png",
-                                                 oPandasData=oGaussFilter,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -539,21 +521,19 @@ def gauss_filter_handler(oPandasData, sBasePath="basic/", sYColumnName="deviatio
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "gauss_filter", oPandasData=oGaussFilter, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "gauss_filter", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def jpeg_compression_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all jpeg compression
-    oJPEG = oPandasData[oPandasData["attack_fn"] == "jpeg_compression"]
 
     # create parameter
-    oJPEG["parameter"] = oJPEG["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["lJPEGQuality"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="jpeg",
                                                  sImageExtension=".png",
-                                                 oPandasData=oJPEG,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -565,21 +545,19 @@ def jpeg_compression_handler(oPandasData, sBasePath="basic/", sYColumnName="devi
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "jpeg", oPandasData=oJPEG, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "jpeg", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def gauss_noise_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all gauss_noise
-    oGaussNoise = oPandasData[oPandasData["attack_fn"] == "gauss_noise"]
 
     # create parameter
-    oGaussNoise["parameter"] = oGaussNoise["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["dSigma"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="gauss_noise",
                                                  sImageExtension=".png",
-                                                 oPandasData=oGaussNoise,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -591,21 +569,19 @@ def gauss_noise_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "gauss_noise", oPandasData=oGaussNoise, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "gauss_noise", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def speckle_noise_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all specle noise
-    oSpecleNoise = oPandasData[oPandasData["attack_fn"] == "speckle_noise"]
 
     # create parameter
-    oSpecleNoise["parameter"] = oSpecleNoise["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["dSigma"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="speckle_noise",
                                                  sImageExtension=".png",
-                                                 oPandasData=oSpecleNoise,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -617,22 +593,19 @@ def speckle_noise_handler(oPandasData, sBasePath="basic/", sYColumnName="deviati
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "speckle_noise", oPandasData=oSpecleNoise, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "speckle_noise", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def salt_and_pepper_noise_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all spnoise
-    oSPNoise = oPandasData[oPandasData["attack_fn"]
-                           == "salt_and_pepper_noise"]
 
     # create parameter
-    oSPNoise["parameter"] = oSPNoise["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["dAmount"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="salt_and_pepper_noise",
                                                  sImageExtension=".png",
-                                                 oPandasData=oSPNoise,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -644,21 +617,19 @@ def salt_and_pepper_noise_handler(oPandasData, sBasePath="basic/", sYColumnName=
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "salt_and_pepper_noise", oPandasData=oSPNoise, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "salt_and_pepper_noise", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 def brightness_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
-    # filter all gamma
-    oBrightness = oPandasData[oPandasData["attack_fn"] == "brightness"]
 
     # create parameter
-    oBrightness["parameter"] = oBrightness["attack_params"].map(
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
         lambda a: ast.literal_eval(a)["lBrightness"])
 
     # plot uniform scale data
     plot_single_parameter_sortable_for_each_hash(sImageBaseName="brightness",
                                                  sImageExtension=".png",
-                                                 oPandasData=oBrightness,
+                                                 oPandasData=oPandasData,
                                                  sXColumnName="parameter",
                                                  sYColumnName=sYColumnName,
                                                  sCategoryColumnName="hashalgorithm",
@@ -670,7 +641,7 @@ def brightness_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_
                                                  lConfidenceInterval=95,
                                                  bInterpolate=True)
     calc_values_single_parameter_for_each_hash(
-        "brightness", oPandasData=oBrightness, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+        "brightness", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
 #----------------------- main function ----------------------------
@@ -686,6 +657,9 @@ if __name__ == "__main__":
 
     sPathToDB = "../data/stability_results/stability_results.db"
 
+    # set figure size
+    plt.figure(num=None, figsize=(7, 6), dpi=100, facecolor='w', edgecolor='k')
+
     # NOTE: if you define a new attack, you have to implement aAttacks
     # handler that extracts the data and plots the charts needed
     dicAttackHandler = {
@@ -698,7 +672,7 @@ if __name__ == "__main__":
         "flip": (flip_handler, {}),
         "contrast": (contrast_handler, {}),
         "gamma_adjustment": (gamma_handler, {}),
-        "median_filter_handler": (median_filter_handler, {}),
+        "median_filter": (median_filter_handler, {}),
         "gaussian_filter": (gauss_filter_handler, {}),
         "jpeg_compression": (jpeg_compression_handler, {}),
         "gauss_noise": (gauss_noise_handler, {}),
@@ -720,7 +694,7 @@ if __name__ == "__main__":
         if not(sAttack in dicAttackHandler.keys()):
             print("There is no handler for attack %s" % sAttack)
             continue
-        # TODO filter pandas data at this point here
         fnAttackHandler, dicHandlerParams = dicAttackHandler[sAttack]
         # run attackhandler with params
-        fnAttackHandler(oStabilityTestData, **dicHandlerParams)
+        fnAttackHandler(
+            oStabilityTestData[oStabilityTestData["attack_fn"] == sAttack], **dicHandlerParams)
