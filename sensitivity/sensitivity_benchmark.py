@@ -11,7 +11,7 @@ from multiprocessing.pool import ThreadPool
 class SensitivityBenchmark:
 
     def __init__(self,
-                 sPathToDB="sensitivity_tests.db",
+                 sPathToDB="sensitivity_results.db",
                  sBaseFolder="../data/sensitivity_results/",
                  aHashes=[],
                  lNumberOfThreads=4
