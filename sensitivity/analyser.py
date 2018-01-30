@@ -162,7 +162,6 @@ if __name__ == "__main__":
 
     # set name of collection to test
     sCollectionName = "img"
-    # TODO: save results of collection to folder having the same name
 
     # set size of test dataset to split from full dataset
     # NOTE: you can define
@@ -191,6 +190,9 @@ if __name__ == "__main__":
 
     # ----------------------------------------
 
+    # add collection name to results base path
+    sSensitivityTestResultsBasePath += sCollectionName + "/"
+
     # get all data in pandas dataframe
     oSensitivityTestData = convert_db_to_pandas()
 
@@ -203,16 +205,15 @@ if __name__ == "__main__":
     lDatasetSize = len(oSensitivityTestData.image.unique())
     dTestSizePercentage = lTestDatasetSize / lDatasetSize
 
-    # TODO: actovate checks again
-    # if lDatasetSize < 100:
-    #     raise Exception(
-    #         "Your chosen dataset contains %i images. This seems to be to small for this kind of test. Try a set with 100 images and more." % lDatasetSize)
-    # if dTestSizePercentage > 0.3:
-    #     raise Exception(
-    #         "You tried to use %f of the images as testset. You can not use a ratio bigger than 0.3 as testset." % dTestSizePercentage)
-    # if lTestDatasetSize < 5:
-    #     raise Exception(
-    #         "You tried to use a testset of %i images. Use at least 5 images as testset to gain reliable results.")
+    if lDatasetSize < 100:
+        raise Exception(
+            "Your chosen dataset contains %i images. This seems to be to small for this kind of test. Try a set with 100 images and more." % lDatasetSize)
+    if dTestSizePercentage > 0.3:
+        raise Exception(
+            "You tried to use %f of the images as testset. You can not use a ratio bigger than 0.3 as testset." % dTestSizePercentage)
+    if lTestDatasetSize < 5:
+        raise Exception(
+            "You tried to use a testset of %i images. Use at least 5 images as testset to gain reliable results.")
 
     # calculate the min, mean und max deviation
     # from every image from the test dataset to
