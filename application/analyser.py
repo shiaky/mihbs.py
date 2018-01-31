@@ -72,6 +72,65 @@ def get_deviations_to_notoriginal(oPandasData, sReferenceCollectionName):
 
     return oPandasFullHashTypeDataset
 
+
+def plot_metrics(oPandasFRData, oPandasFAData, bERR=False):
+    """ calculate and plot FAR and FRR
+        oPandasFRData is the deviation by threshold to the original images
+        oPandasFAData is the deviation by threshold to not the original images
+    """
+
+    sPlotPath = sApplicationTestResultBasePath + "plots/"
+    util.create_path(sPlotPath)
+
+    for sHashType in oPandasFAData["hashalgorithm"].unique():
+        aFAR = [oPandasFAData[(oPandasFAData["hashalgorithm"] == sHashType) & (oPandasFAData["deviation"] <= i)]["image"].count(
+        ) for i in aThresholdSteps] / oPandasFAData[oPandasFAData["hashalgorithm"] == sHashType]["deviation"].count()
+        aFRR = (oPandasFRData[oPandasFRData["hashalgorithm"] == sHashType]["deviation"].count() - [oPandasFRData[(oPandasFRData["hashalgorithm"] == sHashType) & (
+            oPandasFRData["deviation"] <= i)]["image"].count() for i in aThresholdSteps]) / oPandasFRData[oPandasFRData["hashalgorithm"] == sHashType]["deviation"].count()
+        oPandasFAR = pd.DataFrame(
+            {"Threshold": aThresholdSteps, "Errorrate": aFAR, "Type": ["FAR"] * len(aThresholdSteps)})
+        oPandasFRR = pd.DataFrame(
+            {"Threshold": aThresholdSteps, "Errorrate": aFRR, "Type": ["FRR"] * len(aThresholdSteps)})
+        oPandasEERData = pd.concat([oPandasFAR, oPandasFRR])
+        # pdEERData = pd.DataFrame({"Threshold": aTick, "FAR":aFAR, "FRR":
+        # aFRR})
+        print(sHashType)
+        oPandasEERData['subject'] = 0
+
+        # calc less FAR FRR value
+        lFARNotNullValueX = aThresholdSteps[np.argmax(np.array(aFAR) > 0) - 1]
+        lFRRNotNullValueX = aThresholdSteps[np.argmax(np.array(aFRR) == 0)]
+        if bERR:
+            # calc ERR
+            lMinDistancePosition = np.argmin((np.abs(aFRR - aFAR)))
+            lERRValueX = aThresholdSteps[lMinDistancePosition]
+            dErrorrateAtEER = np.mean(
+                [aFAR[lMinDistancePosition], aFRR[lMinDistancePosition]])
+
+            print("ERR: %f" % lERRValueX)
+            print("Value: %f" % dErrorrateAtEER)
+
+        plt.clf()
+        sTitle = sHashType
+        sb.set_style("whitegrid")
+        oSeabornPlot = sb.tsplot(time="Threshold", value="Errorrate",
+                                 condition="Type", unit="subject", interpolate=True, data=oPandasEERData)
+        oSeabornPlot.set(title=sTitle)
+        oSeabornPlot.set(xlabel="Threshold")
+        oSeabornPlot.set(ylabel="Errorrate")
+        oSeabornPlot.set(xticks=np.arange(0, 1.01, 0.1))
+        oSeabornPlot.set(yticks=np.arange(0, 1.01, 0.1))
+        oSeabornPlot.set(ylim=(0, 1))
+        # add not zero lines
+        plt.axvline(x=lFARNotNullValueX, color='#1470b0', linestyle="--")
+        plt.axvline(x=lFRRNotNullValueX, color='#ff8c27', linestyle="--")
+        if bERR:
+            # add ERR line
+            plt.axvline(x=lERRValueX, color='r', linestyle="-")
+            # plt.axhline(y=dErrorrateAtEER, color='r', linestyle="-")
+        sFileNameSafeTitle = util.format_filename(sTitle)
+        oSeabornPlot.get_figure().savefig(sPlotPath + sFileNameSafeTitle + ".png")
+        plt.clf()
 #---------- user defined functions ----------------
 
 
@@ -145,4 +204,7 @@ if __name__ == "__main__":
     oPandasDeviationsToNonoriginal = get_deviations_to_notoriginal(
         oApplicationTestData, sReferenceCollectionName)
 
-    print(oPandasDeviationsToNonoriginal)
+    plot_metrics(oPandasDeviationsToOriginal,
+                 oPandasDeviationsToNonoriginal, bERR=False)
+
+    # TODO: userdefined export of special grouped data
