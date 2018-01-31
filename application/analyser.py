@@ -94,7 +94,6 @@ def plot_metrics(oPandasFRData, oPandasFAData, bERR=False):
         oPandasEERData = pd.concat([oPandasFAR, oPandasFRR])
         # pdEERData = pd.DataFrame({"Threshold": aTick, "FAR":aFAR, "FRR":
         # aFRR})
-        print(sHashType)
         oPandasEERData['subject'] = 0
 
         # calc less FAR FRR value
@@ -131,6 +130,19 @@ def plot_metrics(oPandasFRData, oPandasFAData, bERR=False):
         sFileNameSafeTitle = util.format_filename(sTitle)
         oSeabornPlot.get_figure().savefig(sPlotPath + sFileNameSafeTitle + ".png")
         plt.clf()
+
+
+def save_group_to_files(oPandasGroup, sTargetPath, sFileBaseName):
+    """ calc min, mean, max for panda grouping and save to txt, csv and tex"""
+    util.create_path(sTargetPath)
+    oPandasGroup = oPandasGroup.agg(
+        {"min": np.min, "mean": np.mean, "max": np.max})
+    with open(sTargetPath + sFileBaseName + ".txt", "w") as file:
+        oPandasGroup.to_string(file)
+    with open(sTargetPath + sFileBaseName + ".tex", "w") as file:
+        oPandasGroup.to_latex(file)
+    with open(sTargetPath + sFileBaseName + ".csv", "w") as file:
+        oPandasGroup.to_csv(file)
 #---------- user defined functions ----------------
 
 
@@ -163,7 +175,40 @@ def add_image_name_information_to_dataframe(oPandasDataframe):
     return oPandasDataframe
 
 
-# ----------------------------------------------------
+def extract_user_defined_stats(oPandasDeviationsToOriginal):
+    sApplicationTestResultStatsBasePath = sApplicationTestResultBasePath + "stats/"
+
+    util.create_path(sApplicationTestResultStatsBasePath)
+
+    # base - cumulated over all printers, resolutions, etc.
+    save_group_to_files(oPandasDeviationsToOriginal.groupby(
+        ["hashalgorithm"])["deviation"], sApplicationTestResultStatsBasePath + "original/", "base")
+
+    # printer
+    save_group_to_files(oPandasDeviationsToOriginal[oPandasDeviationsToOriginal["special"].isnull()].groupby(
+        ["hashalgorithm", "printer"])["deviation"], sApplicationTestResultStatsBasePath + "original/", "printer")
+
+    # printer - resolution
+    save_group_to_files(oPandasDeviationsToOriginal[oPandasDeviationsToOriginal["special"].isnull()].groupby(
+        ["hashalgorithm", "printer", "printer_resolution"])["deviation"], sApplicationTestResultStatsBasePath + "original/", "printer_resolution")
+
+    # printer - resolution - (clustered)
+    save_group_to_files(oPandasDeviationsToOriginal[oPandasDeviationsToOriginal["special"].isnull()].groupby(
+        ["printer", "printer_resolution"])["deviation"], sApplicationTestResultStatsBasePath + "original/", "printer_resolution_clustered")
+
+    # printer - special
+    save_group_to_files(oPandasDeviationsToOriginal[oPandasDeviationsToOriginal["printer"] != "D1"].fillna("none").groupby(
+        ["hashalgorithm", "printer", "special"])["deviation"], sApplicationTestResultStatsBasePath + "original/", "printer_special")
+
+    # paper
+    save_group_to_files(oPandasDeviationsToOriginal[oPandasDeviationsToOriginal["special"].isnull()].groupby(
+        ["hashalgorithm", "paper"])["deviation"], sApplicationTestResultStatsBasePath + "original/", "paper")
+
+    # scanner - resolution
+    save_group_to_files(oPandasDeviationsToOriginal.groupby(
+        ["hashalgorithm", "scanner_resolution"])["deviation"], sApplicationTestResultStatsBasePath + "original/", "scanner_resolution")
+
+    # ----------------------------------------------------
 
 
 if __name__ == "__main__":
@@ -183,6 +228,12 @@ if __name__ == "__main__":
     # set figure size
     plt.figure(num=None, figsize=(7, 6), dpi=100,
                facecolor='w', edgecolor='k')
+
+    # plot ERR
+    # NOTE: it is not very clear where to place the ERR
+    # if the err is placed at a strange position you can
+    # deactivate the EER plot by setting this flag to False
+    bERR = False
 
     # ----------------------------------------
 
@@ -205,6 +256,9 @@ if __name__ == "__main__":
         oApplicationTestData, sReferenceCollectionName)
 
     plot_metrics(oPandasDeviationsToOriginal,
-                 oPandasDeviationsToNonoriginal, bERR=False)
+                 oPandasDeviationsToNonoriginal, bERR=bERR)
 
-    # TODO: userdefined export of special grouped data
+    ####### USER SPECIFIC ####################
+    # define your custom analyser functions
+    extract_user_defined_stats(oPandasDeviationsToOriginal)
+    ##########################################
