@@ -15,25 +15,27 @@ if __name__ == '__main__':
     import wuhash as wu
     import blockhash as block
     import predef_hashes as pdh
+    import histohash as ht
 
     aHashes = [
         (pdh.average_hash, {}),
         # (pdh.phash, {}),
         (pdh.dhash, {}),
-        # (pdh.whash, {}),
+        (pdh.whash, {}),
         (block.blockhash, {}),
         # (wu.wuhash, {}),
         # add rotation handling to wuhash
-        # (wu.wuhash, {"bRotationHandling": True}),
+        (wu.wuhash, {"bRotationHandling": True}),
         # add fliphandling to all hashing methods
-        (pdh.average_hash, {"bFlipHandling": True}),
+        #(pdh.average_hash, {"bFlipHandling": True}),
         # (pdh.phash, {"bFlipHandling": True}),
-        (pdh.dhash, {"bFlipHandling": True}),
+        #(pdh.dhash, {"bFlipHandling": True}),
         # (pdh.whash, {"bFlipHandling": True}),
-        (block.blockhash, {"bFlipHandling": True}),
+        #(block.blockhash, {"bFlipHandling": True}),
         # (wu.wuhash, {"bFlipHandling": True}),
         # (wu.wuhash, {"bFlipHandling": True,
         #              "bRotationHandling": True}),
+        (ht.hist_xiang, {}),
     ]
 
     # set number of threads

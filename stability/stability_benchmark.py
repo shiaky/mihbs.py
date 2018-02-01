@@ -55,7 +55,7 @@ class StabilityBenchmark:
             FOREIGN KEY(`attacked_hash`) REFERENCES `hashes`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
             FOREIGN KEY(`hash_type`) REFERENCES `hash_types`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
             FOREIGN KEY(`original_hash`) REFERENCES `hashes`(`id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-            UNIQUE(`attack`,`hash_type`,`image`)
+            UNIQUE(`attack`,`hash_type`,`image`)  --ON CONFLICT REPLACE
         );
         CREATE TABLE IF NOT EXISTS `images` (
             `id`	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
@@ -200,7 +200,9 @@ class StabilityBenchmark:
                 # save the test
                 tpValues = (lAttackId, lHashTypeId, lOriginalImageId,
                             lOriginalImageHashId, lAttackedImageHashId, dDeviation)
-                TestId = dbData.execute_sql_query_manipulation(
+                # print(str(tpValues[:3]) + " | " + sAttackName +
+                # sAttackParameters + " | " + sHashName + " | " + sImageName)
+                dbData.execute_sql_query_manipulation(
                     "INSERT INTO tests (attack, hash_type, image, original_hash, attacked_hash, deviation_hash) VALUES (?, ?, ?, ?, ?, ?);", tpValues)
 
 

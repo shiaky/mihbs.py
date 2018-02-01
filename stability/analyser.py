@@ -644,6 +644,28 @@ def brightness_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_
         "brightness", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
 
 
+def pattern_handler(oPandasData, sBasePath="basic/", sYColumnName="deviation_hash", sYLabel="mean Hamming distance (ci = 95%)"):
+    # filter all pattern
+    oPandasData = oPandasData[oPandasData["attack_fn"] == "blend_pattern"]
+
+    # create parameter
+    oPandasData["parameter"] = oPandasData["attack_params"].map(
+        lambda a: "white paper" if a.find("array([[[252,") >= 0 else "recycled paper")
+
+    plot_single_parameter_categorical_for_each_hash(sImageBaseName="pattern",
+                                                    sImageExtension=".png",
+                                                    oPandasData=oPandasData,
+                                                    sXColumnName="parameter",
+                                                    sYColumnName=sYColumnName,
+                                                    sCategoryColumnName="hashalgorithm",
+                                                    sBasePath=sBasePath,
+                                                    sDiagramTitle="pattern blending",
+                                                    sXLabel="pattern",
+                                                    sYLabel=sYLabel,
+                                                    lConfidenceInterval=95)
+    calc_values_single_parameter_for_each_hash(
+        "pattern", oPandasData=oPandasData, sXColumnName="parameter", sYColumnName=sYColumnName, sCategoryColumnName="hashalgorithm", sBasePath=sBasePath)
+
 #----------------------- main function ----------------------------
 
 
@@ -678,7 +700,8 @@ if __name__ == "__main__":
         "gauss_noise": (gauss_noise_handler, {}),
         "speckle_noise": (speckle_noise_handler, {}),
         "salt_and_pepper_noise": (salt_and_pepper_noise_handler, {}),
-        "brightness": (brightness_handler, {})
+        "brightness": (brightness_handler, {}),
+        "blend_pattern": (pattern_handler, {}),
     }
 
     # ------------------------------------------------------

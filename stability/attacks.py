@@ -262,6 +262,8 @@ def blend_image(aInputImage, aBGImage, dOpacity=1.0, sBlendMode="mul"):
 
 def blend_pattern(aInputImage, aPatternImage=None, dOpacity=1.0, sBlendMode="mul"):
     """ stretches the pattern image to the size of the image and blends them """
+    if aPatternImage is None:
+        raise Exception("no image was given as pattern")
     aPatternRightSize = __resize_pattern(aInputImage, aPatternImage)
     return blend_image(aInputImage, aPatternRightSize, dOpacity, sBlendMode)
 
