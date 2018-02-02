@@ -52,6 +52,7 @@ def plot_single_parameter_sortable(sImageName,
                                    aYLim=None):
     """plot the mean values and the confidence interval over the unit column for each category (mostly hashes)"""
     plt.clf()
+    sb.set_style("whitegrid")
     oSeabornPlot = sb.tsplot(time=sXColumnName, value=sYColumnName, unit=sUnitColumnName, condition=sCategoryColumnName, ci=lConfidenceInterval, interpolate=bInterpolate,
                              data=oPandasData)
     if sDiagramTitle:

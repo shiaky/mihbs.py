@@ -98,11 +98,10 @@ if __name__ == '__main__':
     # add brightness
     for lBrightness in range(-120, 121, 10):
         tpTmpAttack = (at.brightness, {"lBrightness": lBrightness})
-        aAttacks.append(lBrightness)
+        aAttacks.append(tpTmpAttack)
 
     # add handmade attacks
     aHandMadeAttacks = [
-
         # paper blending
         (at.blend_pattern, {"aPatternImage": util.load_image(
             "../common/whitePaper.tiff")}),
