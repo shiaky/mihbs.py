@@ -164,10 +164,10 @@ if __name__ == '__main__':
     fnDeviationFunction = dv.hamming_distance
 
     # set number of threads
-    lNumberOfThreads = 4
+    lNumberOfThreads = 10
 
     # set path of image folder
-    sPathToImages = "../data/img/"
+    sPathToImages = "../imagedatasets/stability/"
 
     # ---- add definitions to benchmark
     stabbench.set_attacks(aAttacks)

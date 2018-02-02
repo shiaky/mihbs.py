@@ -18,35 +18,41 @@ if __name__ == '__main__':
     import wuhash as wu
     import blockhash as block
     import predef_hashes as pdh
+    import histohash as ht
 
     aHashes = [
         (pdh.average_hash, {}),
         # (pdh.phash, {}),
         (pdh.dhash, {}),
-        # (pdh.whash, {}),
+        (pdh.whash, {}),
         (block.blockhash, {}),
         # (wu.wuhash, {}),
         # add rotation handling to wuhash
-        # (wu.wuhash, {"bRotationHandling": True}),
+        (wu.wuhash, {"bRotationHandling": True}),
         # add fliphandling to all hashing methods
-        (pdh.average_hash, {"bFlipHandling": True}),
+        #(pdh.average_hash, {"bFlipHandling": True}),
         # (pdh.phash, {"bFlipHandling": True}),
-        (pdh.dhash, {"bFlipHandling": True}),
+        #(pdh.dhash, {"bFlipHandling": True}),
         # (pdh.whash, {"bFlipHandling": True}),
-        (block.blockhash, {"bFlipHandling": True}),
+        #(block.blockhash, {"bFlipHandling": True}),
         # (wu.wuhash, {"bFlipHandling": True}),
         # (wu.wuhash, {"bFlipHandling": True,
         #              "bRotationHandling": True}),
+        (ht.hist_xiang, {}),
     ]
 
     # set number of threads
-    lNumberOfThreads = 4
+    lNumberOfThreads = 30
 
     # set pathes to imagesets that should be hashed
     # one has to be the dataset including the originals
     aImagesets = [
-        "../data/application_test/ref/",
-        "../data/application_test/D3/"
+        "../imagedatasets/application/ref/",
+        "../imagedatasets/application/D1/",
+        "../imagedatasets/application/D2/",
+        "../imagedatasets/application/D3/",
+        "../imagedatasets/application/D14/",
+        "../imagedatasets/application/D15/",
     ]
 
     # ---- add definitions to benchmark

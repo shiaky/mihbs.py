@@ -39,11 +39,12 @@ if __name__ == '__main__':
     ]
 
     # set number of threads
-    lNumberOfThreads = 4
+    lNumberOfThreads = 50
 
     # set pathes to imagesets that should be hashed
     aImagesets = [
-        "../data/img/"
+        "../imagedatasets/sensitivity/dogs/",
+        "../imagedatasets/sensitivity/flowers/"
     ]
 
     # ---- add definitions to benchmark

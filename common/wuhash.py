@@ -69,7 +69,7 @@ def __rotation_detection(aSinogram):
     aLocalMaximumTop = argrelextrema(aDistanceTop, np.greater)[0]
     aLocalMaximumBottom = argrelextrema(aDistanceBottom, np.greater)[0]
 
-    # filter positions that are wider than a 45° shift in one direction
+    # filter positions that are wider than a 45 shift in one direction
     aLocalMaximumTop = aLocalMaximumTop[np.logical_and(
         aLocalMaximumTop >= 45, aLocalMaximumTop < 135)]
     aLocalMaximumBottom = aLocalMaximumBottom[np.logical_and(
