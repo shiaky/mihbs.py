@@ -88,10 +88,9 @@ def plot_single_parameter_sortable_for_each_hash(sImageBaseName,
     """for each hashfunction: plot the mean values and the confidence interval over the unit column for each category (mostly hashes)"""
     dYMax = np.percentile(oPandasData[sYColumnName].values, 99)
     aYLim = (0, dYMax)
-    for sHashFunction in oPandasData["hash_fn"].unique():
-        plot_single_parameter_sortable(sImageBaseName + "__" + sHashFunction + sImageExtension,
-                                       oPandasData[oPandasData["hash_fn"]
-                                                   == sHashFunction],
+    if bAllHashInOnePlot:
+        plot_single_parameter_sortable(sImageBaseName + sImageExtension,
+                                       oPandasData,
                                        sXColumnName,
                                        sYColumnName,
                                        sCategoryColumnName,
@@ -104,6 +103,23 @@ def plot_single_parameter_sortable_for_each_hash(sImageBaseName,
                                        lConfidenceInterval,
                                        bInterpolate,
                                        aYLim=aYLim)
+    else:
+        for sHashFunction in oPandasData["hash_fn"].unique():
+            plot_single_parameter_sortable(sImageBaseName + "__" + sHashFunction + sImageExtension,
+                                           oPandasData[oPandasData["hash_fn"]
+                                                       == sHashFunction],
+                                           sXColumnName,
+                                           sYColumnName,
+                                           sCategoryColumnName,
+                                           sBasePath,
+                                           sUnitColumnName,
+                                           sDiagramTitle,
+                                           sXLabel,
+                                           sYLabel,
+                                           aXTicks,
+                                           lConfidenceInterval,
+                                           bInterpolate,
+                                           aYLim=aYLim)
 
 
 def plot_single_parameter_categorical(sImageName,
@@ -157,10 +173,9 @@ def plot_single_parameter_categorical_for_each_hash(sImageBaseName,
     """for each hashfunction: plot the mean values and the confidence interval over the pandas dataframe for each category (mostly hashes)"""
     dYMax = np.percentile(oPandasData[sYColumnName].values, 99)
     aYLim = (0, dYMax)
-    for sHashFunction in oPandasData["hash_fn"].unique():
-        plot_single_parameter_categorical(sImageBaseName + "__" + sHashFunction + sImageExtension,
-                                          oPandasData[oPandasData["hash_fn"]
-                                                      == sHashFunction],
+    if bAllHashInOnePlot:
+        plot_single_parameter_categorical(sImageBaseName + sImageExtension,
+                                          oPandasData,
                                           sXColumnName,
                                           sYColumnName,
                                           sCategoryColumnName,
@@ -171,6 +186,21 @@ def plot_single_parameter_categorical_for_each_hash(sImageBaseName,
                                           aXTicks,
                                           lConfidenceInterval,
                                           aYLim=aYLim)
+    else:
+        for sHashFunction in oPandasData["hash_fn"].unique():
+            plot_single_parameter_categorical(sImageBaseName + "__" + sHashFunction + sImageExtension,
+                                              oPandasData[oPandasData["hash_fn"]
+                                                          == sHashFunction],
+                                              sXColumnName,
+                                              sYColumnName,
+                                              sCategoryColumnName,
+                                              sBasePath,
+                                              sDiagramTitle,
+                                              sXLabel,
+                                              sYLabel,
+                                              aXTicks,
+                                              lConfidenceInterval,
+                                              aYLim=aYLim)
 
 # --------------------- data stats generators ---------------------- #
 
@@ -682,6 +712,9 @@ if __name__ == "__main__":
 
     # set figure size
     plt.figure(num=None, figsize=(7, 6), dpi=100, facecolor='w', edgecolor='k')
+
+    # plot all hashalgos in one plot
+    bAllHashInOnePlot = True
 
     # NOTE: if you define a new attack, you have to implement aAttacks
     # handler that extracts the data and plots the charts needed
