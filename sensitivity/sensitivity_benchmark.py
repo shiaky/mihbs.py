@@ -89,59 +89,63 @@ class SensitivityBenchmark:
 # ---- private runner --------
     def __hash_single_image(self, sPathToImage, lCollectionId, bAddSave=False):
         """ hash a single image and add it to db"""
-        # connect do db
-        dbData = self.get_dbcon()
+        try:
+            # connect do db
+            dbData = self.get_dbcon()
 
-        # add image to db
-        sImageName = sPathToImage.split("/")[-1]
-        aImage = util.load_image(sPathToImage)
-        # if add save mode is enabled, test whether file is existend
-        tpValues = (sImageName, lCollectionId)
-        aExistendImageId = None
-        if bAddSave:
-            aExistendImageId = dbData.execute_sql_query_select(
-                "SELECT id FROM images  WHERE name=? AND collection_id=?;", tpValues)
-        if bAddSave and aExistendImageId:
-            lImageId = aExistendImageId[0][0]
-        else:
-            lImageId = dbData.execute_sql_query_manipulation(
-                "INSERT INTO images (name, collection_id) VALUES (?,?);", tpValues)
-
-        # process hashing
-        for fnHash, dicHashParameters in self.aHashes:
-            sHashName = fnHash.__name__
-            sHashParameters = str(dicHashParameters)
-            tpValues = (sHashName, sHashParameters)
-
-            # hash type handling
-            aExistentHashTypes = dbData.execute_sql_query_select(
-                "SELECT id FROM hash_types WHERE name=? AND params=?;", tpValues)
-            if not aExistentHashTypes:
-                lHashTypeId = dbData.execute_sql_query_manipulation(
-                    "INSERT INTO hash_types (name, params) VALUES (?, ?);", tpValues)
-            else:
-                lHashTypeId = aExistentHashTypes[0][0]
-
-            # test whether image and hash combination was tested already
-            # NOTE: will be tested in AddSave mode only, because it cost a lot of
-            # time ... dont use this mode if you can ensure tha you never add a
-            # collection twice
+            # add image to db
+            sImageName = sPathToImage.split("/")[-1]
+            aImage = util.load_image(sPathToImage)
+            # if add save mode is enabled, test whether file is existend
+            tpValues = (sImageName, lCollectionId)
+            aExistendImageId = None
             if bAddSave:
-                aExistendImageHash = dbData.execute_sql_query_select(
-                    "SELECT null from images_hashes as ih INNER JOIN hashes as h on h.id = ih.hash_id WHERE h.hash_type_id=? AND ih.image_id=?;", (lHashTypeId, lImageId))
-                # skip hash calculation and add to db if already existend
-                if aExistendImageHash:
-                    continue
+                aExistendImageId = dbData.execute_sql_query_select(
+                    "SELECT id FROM images  WHERE name=? AND collection_id=?;", tpValues)
+            if bAddSave and aExistendImageId:
+                lImageId = aExistendImageId[0][0]
+            else:
+                lImageId = dbData.execute_sql_query_manipulation(
+                    "INSERT INTO images (name, collection_id) VALUES (?,?);", tpValues)
 
-            # calculate and add hash if not existend
-            aHash = fnHash(aImage, **dicHashParameters)
-            tpValues = (lHashTypeId, aHash)
-            lHashId = dbData.execute_sql_query_manipulation(
-                "INSERT INTO hashes (hash_type_id, hash) VALUES (?, ?);", tpValues)
+            # process hashing
+            for fnHash, dicHashParameters in self.aHashes:
+                sHashName = fnHash.__name__
+                sHashParameters = str(dicHashParameters)
+                tpValues = (sHashName, sHashParameters)
 
-            # add image-hash correlation to db
-            dbData.execute_sql_query_manipulation(
-                "INSERT INTO images_hashes (image_id, hash_id) VALUES (?, ?);", (lImageId, lHashId))
+                # hash type handling
+                aExistentHashTypes = dbData.execute_sql_query_select(
+                    "SELECT id FROM hash_types WHERE name=? AND params=?;", tpValues)
+                if not aExistentHashTypes:
+                    lHashTypeId = dbData.execute_sql_query_manipulation(
+                        "INSERT INTO hash_types (name, params) VALUES (?, ?);", tpValues)
+                else:
+                    lHashTypeId = aExistentHashTypes[0][0]
+
+                # test whether image and hash combination was tested already
+                # NOTE: will be tested in AddSave mode only, because it cost a lot of
+                # time ... dont use this mode if you can ensure tha you never add a
+                # collection twice
+                if bAddSave:
+                    aExistendImageHash = dbData.execute_sql_query_select(
+                        "SELECT null from images_hashes as ih INNER JOIN hashes as h on h.id = ih.hash_id WHERE h.hash_type_id=? AND ih.image_id=?;", (lHashTypeId, lImageId))
+                    # skip hash calculation and add to db if already existend
+                    if aExistendImageHash:
+                        continue
+
+                # calculate and add hash if not existend
+                aHash = fnHash(aImage, **dicHashParameters)
+                tpValues = (lHashTypeId, aHash)
+                lHashId = dbData.execute_sql_query_manipulation(
+                    "INSERT INTO hashes (hash_type_id, hash) VALUES (?, ?);", tpValues)
+
+                # add image-hash correlation to db
+                dbData.execute_sql_query_manipulation(
+                    "INSERT INTO images_hashes (image_id, hash_id) VALUES (?, ?);", (lImageId, lHashId))
+        except:
+            print(
+                "An Error occurred while trying to hash %s. Skipping this image." % sPathToImage)
 
 
 #------ add imageset to db and hash every image --------

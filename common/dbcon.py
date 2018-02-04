@@ -58,9 +58,11 @@ class Dbcon:
     def connect_to_db(self):
         try:
             self.con = l3.connect(
-                self.sPathToDB, detect_types=l3.PARSE_DECLTYPES)
+                self.sPathToDB, detect_types=l3.PARSE_DECLTYPES, timeout=600)
             self.cur = self.con.cursor()
             self.cur.execute("PRAGMA foreign_keys = ON;")
+            # self.cur.execute("PRAGMA journal_mode = PERSIST;")
+            # self.con.commit()
 
         except l3.Error as e:
             print("Error while connecting to db: ", e.args[0])
