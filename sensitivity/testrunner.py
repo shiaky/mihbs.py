@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     aHashes = [
         (pdh.average_hash, {}),
-        # (pdh.phash, {}),
+        (pdh.phash, {}),
         (pdh.dhash, {}),
         (pdh.whash, {}),
         (block.blockhash, {}),
