@@ -127,7 +127,7 @@ class StabilityBenchmark:
 
 # ---- private runner --------
     def __run_test_on_single_image(self, sPathToImage):
-        """ run the test on a single images """
+        """ run the test on a single image """
         # connect to db
         dbData = self.get_dbcon()
         # get image name
@@ -159,7 +159,12 @@ class StabilityBenchmark:
             else:
                 lAttackId = aDBAttack[0][0]
             # apply attack on image
-            aAttackedImage = fnAttack(aOriginalImage, **dicAttackParams)
+            try:
+                aAttackedImage = fnAttack(aOriginalImage, **dicAttackParams)
+            except:
+                print(
+                    "An error occurred applying attack %s ... skipping Attack" % sAttackName)
+                continue
             for fnHash, dicHashParams in self.aHashes:
                 # check whether hash type is already defined
                 sHashName = fnHash.__name__
@@ -183,13 +188,24 @@ class StabilityBenchmark:
                     aOriginalImageHash = aDBOriginalImagehashId[0][1]
                 else:
                     # print("\t\t\tapplying hashing on original image")
-                    aOriginalImageHash = fnHash(
-                        aOriginalImage, **dicHashParams)
+                    try:
+                        aOriginalImageHash = fnHash(
+                            aOriginalImage, **dicHashParams)
+                    except:
+                        print("An error occurred generating hash with %s ... Skipping hash function" %
+                              sHashName)
+                        continue
+
                     lOriginalImageHashId = dbData.execute_sql_query_manipulation(
                         "INSERT INTO hashes (hash_value) VALUES (?);", (aOriginalImageHash,))
                 # hash the attacked image
-                aAttackedImageHash = fnHash(
-                    aAttackedImage, **dicHashParams)
+                try:
+                    aAttackedImageHash = fnHash(
+                        aAttackedImage, **dicHashParams)
+                except:
+                    print("An error occurred generating hash with %s ... Skipping hash function" %
+                          sHashName)
+                    continue
                 lAttackedImageHashId = dbData.execute_sql_query_manipulation(
                     "INSERT INTO hashes (hash_value) VALUES (?);", (aAttackedImageHash,))
                 # calc deviation of whished
