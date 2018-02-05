@@ -161,7 +161,7 @@ if __name__ == "__main__":
     # ---------- config ----------------------
 
     # set name of collection to test
-    sCollectionName = "img"
+    sCollectionName = "flowers"
 
     # set size of test dataset to split from full dataset
     # NOTE: you can define
