@@ -6,7 +6,7 @@ Image hashing library
 
 # from PIL import Image
 import numpy
-# import scipy.fftpack
+import scipy.fftpack
 # import pywt
 # import os.path
 import cv2
