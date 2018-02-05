@@ -137,6 +137,7 @@ if __name__ == '__main__':
     import blockhash as block
     import predef_hashes as pdh
     import histohash as ht
+    import aqcslbp as aq
 
     aHashes = [
         (pdh.average_hash, {}),
@@ -157,6 +158,7 @@ if __name__ == '__main__':
         # (wu.wuhash, {"bFlipHandling": True,
         #              "bRotationHandling": True}),
         (ht.hist_xiang, {}),
+        (aq.aq_cslbp, {}),
     ]
 
     # define the deviation function if whished
