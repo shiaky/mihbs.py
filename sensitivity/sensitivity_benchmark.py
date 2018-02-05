@@ -140,6 +140,7 @@ class SensitivityBenchmark:
             except:
                 print("An Error occurred while trying to hash %s with hash function %s. Skipping this hash_fn." % (
                     sPathToImage, sHashName))
+                continue
             tpValues = (lHashTypeId, aHash)
             lHashId = dbData.execute_sql_query_manipulation(
                 "INSERT INTO hashes (hash_type_id, hash) VALUES (?, ?);", tpValues)
