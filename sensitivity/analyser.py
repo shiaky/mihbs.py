@@ -52,6 +52,11 @@ def calculate_stats(oSensitivityTestData, lTestDatasetSize, lRandomDataSplitSeed
         oBigDataset, oTestDataset = train_test_split(
             oFilteredSensitivityTestData, test_size=lTestDatasetSize, random_state=lRandomDataSplitSeed)
 
+        # DEBUG
+        print(sHashAlgo)
+        print(len(oBigDataset.image.unique()))
+        print(len(oTestDataset.image.unique()))
+
         # create deviation array having size of
         # nr. of test_images * # nr. of reference_images
         lNumberOfTestReferenceRelationsTotal = oTestDataset.shape[0] * \
@@ -163,6 +168,8 @@ if __name__ == "__main__":
     # set name of collection to test
     sCollectionName = "flowers"
 
+    # flowers | 10 | 43
+
     # set size of test dataset to split from full dataset
     # NOTE: you can define
     # an arbitrary number here but keep in mind that
@@ -174,7 +181,7 @@ if __name__ == "__main__":
     # data will be splitted by a randomized method. Define a fixed
     # seed if you need reproducible results. Define it as None to
     # start the PRNG with a random seed
-    lRandomDataSplitSeed = None
+    lRandomDataSplitSeed = 43
 
     # define the steps for the calculation of the error rate
     # and the plot (min, max + step, step)
