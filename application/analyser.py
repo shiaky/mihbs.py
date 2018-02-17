@@ -101,11 +101,14 @@ def plot_metrics(oPandasFRData, oPandasFAData, bERR=False):
         lFRRNotNullValueX = aThresholdSteps[np.argmax(np.array(aFRR) == 0)]
         if bERR:
             # calc ERR
-            lMinDistancePosition = np.argmin((np.abs(aFRR - aFAR)))
-            lERRValueX = aThresholdSteps[lMinDistancePosition]
+            #lMinDistancePosition = np.argmin((np.abs(aFRR - aFAR)))
+            lFarFrrIntersection = np.argwhere(
+                np.diff(np.sign(aFAR - aFRR)) != 0).reshape(-1)[0]
+            lERRValueX = aThresholdSteps[lFarFrrIntersection]
             dErrorrateAtEER = np.mean(
-                [aFAR[lMinDistancePosition], aFRR[lMinDistancePosition]])
+                [aFAR[lFarFrrIntersection], aFRR[lFarFrrIntersection]])
 
+            print(sHashType)
             print("ERR: %f" % lERRValueX)
             print("Value: %f" % dErrorrateAtEER)
 
@@ -175,7 +178,7 @@ def add_image_name_information_to_dataframe(oPandasDataframe):
     return oPandasDataframe
 
 
-def extract_user_defined_stats(oPandasDeviationsToOriginal):
+def extract_user_defined_stats(oPandasDeviationsToOriginal, oPandasDeviationsToNonOriginal=None):
     sApplicationTestResultStatsBasePath = sApplicationTestResultBasePath + "stats/"
 
     util.create_path(sApplicationTestResultStatsBasePath)
@@ -208,6 +211,11 @@ def extract_user_defined_stats(oPandasDeviationsToOriginal):
     save_group_to_files(oPandasDeviationsToOriginal.groupby(
         ["hashalgorithm", "scanner_resolution"])["deviation"], sApplicationTestResultStatsBasePath + "original/", "scanner_resolution")
 
+    # base - cumulated over all printers, resolutions, etc.
+    if oPandasDeviationsToNonOriginal is not None:
+        save_group_to_files(oPandasDeviationsToNonOriginal.groupby(
+            ["hashalgorithm"])["deviation"], sApplicationTestResultStatsBasePath + "nonoriginal/", "base")
+
     # ----------------------------------------------------
 
 
@@ -233,7 +241,7 @@ if __name__ == "__main__":
     # NOTE: it is not very clear where to place the ERR
     # if the err is placed at a strange position you can
     # deactivate the EER plot by setting this flag to False
-    bERR = False
+    bERR = True
 
     # ----------------------------------------
 
@@ -260,5 +268,6 @@ if __name__ == "__main__":
 
     ####### USER SPECIFIC ####################
     # define your custom analyser functions
-    extract_user_defined_stats(oPandasDeviationsToOriginal)
+    extract_user_defined_stats(
+        oPandasDeviationsToOriginal, oPandasDeviationsToNonoriginal)
     ##########################################

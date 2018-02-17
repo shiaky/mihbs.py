@@ -166,7 +166,7 @@ if __name__ == "__main__":
     # ---------- config ----------------------
 
     # set name of collection to test
-    sCollectionName = "flowers"
+    sCollectionName = "dogs"
 
     # flowers | 10 | 43
 
@@ -176,7 +176,7 @@ if __name__ == "__main__":
     # every image from the testset will be compared to every
     # image from the big set. The more test images you want to have
     # the more time the test will consume
-    lTestDatasetSize = 10
+    lTestDatasetSize = 203
 
     # data will be splitted by a randomized method. Define a fixed
     # seed if you need reproducible results. Define it as None to
