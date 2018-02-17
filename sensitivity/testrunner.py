@@ -12,11 +12,11 @@ if __name__ == '__main__':
 
     # define a set of hashing algorithms
     # NOTE: add your own hashing algorithms here
-    import wuhash as wu
+    #import wuhash as wu
     import blockhash as block
     import predef_hashes as pdh
-    import histohash as ht
-    import aqcslbp as aq
+    #import histohash as ht
+    #import aqcslbp as aq
 
     aHashes = [
         (pdh.average_hash, {}),
@@ -26,7 +26,7 @@ if __name__ == '__main__':
         (block.blockhash, {}),
         # (wu.wuhash, {}),
         # add rotation handling to wuhash
-        (wu.wuhash, {"bRotationHandling": True}),
+        #(wu.wuhash, {"bRotationHandling": True}),
         # add fliphandling to all hashing methods
         #(pdh.average_hash, {"bFlipHandling": True}),
         # (pdh.phash, {"bFlipHandling": True}),
@@ -36,17 +36,16 @@ if __name__ == '__main__':
         # (wu.wuhash, {"bFlipHandling": True}),
         # (wu.wuhash, {"bFlipHandling": True,
         #              "bRotationHandling": True}),
-        (ht.hist_xiang, {}),
-        (aq.aq_cslbp, {}),
+        #(ht.hist_xiang, {}),
+        #(aq.aq_cslbp, {}),
     ]
 
     # set number of threads
-    lNumberOfThreads = 50
+    lNumberOfThreads = 4
 
     # set pathes to imagesets that should be hashed
     aImagesets = [
-        "../imagedatasets/sensitivity/dogs/",
-        "../imagedatasets/sensitivity/flowers/"
+        "../imagedatasets/sensitivity/img/"
     ]
 
     # ---- add definitions to benchmark

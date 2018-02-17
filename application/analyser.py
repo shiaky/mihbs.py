@@ -238,9 +238,6 @@ if __name__ == "__main__":
                facecolor='w', edgecolor='k')
 
     # plot ERR
-    # NOTE: it is not very clear where to place the ERR
-    # if the err is placed at a strange position you can
-    # deactivate the EER plot by setting this flag to False
     bERR = True
 
     # ----------------------------------------
