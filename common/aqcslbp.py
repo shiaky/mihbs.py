@@ -142,19 +142,30 @@ def adaptive_wiener_filter(aImage, neighbors=(2, 2), bDebug=False):
             aBlock = aImage[r0:row + neighbors[0] + 1,
                             c0:col + neighbors[1] + 1]
 
+            if bDebug:
+                print(aBlock)
             # calculate mean and var for neighborhood
             dMean = np.mean(aBlock)
             dVar = np.var(aBlock)
 
+            if bDebug:
+                print("mean: ", dMean)
+                print("var: ", dVar)
+
             # calculate var_o
             dVarO = max(0, dVar - dVarGlobal)
 
-            # calculate new value
-            dAdaptive = int((dMean
-                             + (dVarO) / (dVarO + dVarGlobal)
-                             * (aImage[row, col] - dMean)))
+            if bDebug:
+                print("dVarO: ", dVarO)
+                print("var-glob:",  dVarGlobal)
 
-            aOutput[row, col] = dAdaptive
+            # calculate new value
+            if dVarO + dVarGlobal == 0:
+                dAdaptive = dMean
+            else:
+                dAdaptive = int((dMean
+                                 + (dVarO) / (dVarO + dVarGlobal)
+                                 * (aImage[row, col] - dMean)))
 
             if bDebug:
                 print(aBlock)
@@ -166,6 +177,8 @@ def adaptive_wiener_filter(aImage, neighbors=(2, 2), bDebug=False):
                 print("fact:   ", (dVarO) / (dVarO + dVarGlobal))
                 print("val-mean", aImage[row, col] - dMean)
                 print("new:    ", dAdaptive)
+
+                aOutput[row, col] = dAdaptive
 
     return aOutput.astype(np.uint8)
 
