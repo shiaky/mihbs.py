@@ -24,6 +24,8 @@ def __calculate_thresholds(aInput, bDebug=False):
     lS3 = sorted(i - dMean for i in aInput if i > dMean)
 
     dMin = 0
+    a = 0
+    b = 0
 
     while lS1 and lS3:
         dSum2 = sum(lS2)
