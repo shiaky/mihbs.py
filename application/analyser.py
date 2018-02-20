@@ -222,15 +222,17 @@ def extract_user_defined_stats(oPandasDeviationsToOriginal, oPandasDeviationsToN
 if __name__ == "__main__":
     # ---------- config ----------------------
 
+    # define path for plots and starts
+    sApplicationTestResultBasePath = "../data/application_results/"
+
+    sPathToDB = "../data/application_results/application_results.db"
+
     # set name reference collection
     sReferenceCollectionName = "ref"
 
     # define the steps for the calculation of the error rate
     # and the plot (min, max + step, step)
     aThresholdSteps = np.arange(0, 1.01, 0.01)
-
-    # define path for plots and starts
-    sApplicationTestResultBasePath = "../data/application_results/"
 
     # set size of the plot
     # set figure size
@@ -243,7 +245,7 @@ if __name__ == "__main__":
     # ----------------------------------------
 
     # get all data in pandas dataframe
-    oApplicationTestData = convert_db_to_pandas()
+    oApplicationTestData = convert_db_to_pandas(sPathToDB)
 
     ###### USER SPECIFIC#####################
     # define custom feature generators here

@@ -165,6 +165,11 @@ def save_stats(dicSensitivityResults):
 if __name__ == "__main__":
     # ---------- config ----------------------
 
+    # define path for plots and starts
+    sSensitivityTestResultsBasePath = "../data/sensitivity_results/"
+
+    sPathToDB = "../data/sensitivity_results/sensitivity_results.db"
+
     # set name of collection to test
     sCollectionName = "img"
 
@@ -185,9 +190,6 @@ if __name__ == "__main__":
     # and the plot (min, max + step, step)
     aThresholdSteps = np.arange(0, 1.01, 0.01)
 
-    # define path for plots and starts
-    sSensitivityTestResultsBasePath = "../data/sensitivity_results/"
-
     # set size of the plot
     # set figure size
     plt.figure(num=None, figsize=(7, 6), dpi=100,
@@ -199,12 +201,10 @@ if __name__ == "__main__":
     sSensitivityTestResultsBasePath += sCollectionName + "/"
 
     # get all data in pandas dataframe
-    oSensitivityTestData = convert_db_to_pandas()
+    oSensitivityTestData = convert_db_to_pandas(sPathToDB)
 
     # set name of test dataset
     oSensitivityTestData = oSensitivityTestData[oSensitivityTestData.collection == sCollectionName]
-
-    # split dataset in test and big dataset
 
     # perform error handling regarding size of the dataset and test ratio
     lDatasetSize = len(oSensitivityTestData.image.unique())
